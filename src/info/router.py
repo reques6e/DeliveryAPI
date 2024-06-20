@@ -1,7 +1,7 @@
 from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
-from utils import JSONBuildResponse
+from database import DataBase
 
 router = APIRouter(
     prefix='/info',
@@ -12,9 +12,6 @@ router = APIRouter(
 @router.get('/')
 async def info():
     return JSONResponse(
-        content=JSONBuildResponse(
-            error=0,
-            message=''
-        ),
+        content={'1': '2'},
         status_code=200
     )

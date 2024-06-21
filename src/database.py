@@ -25,3 +25,8 @@ class DataBase:
             if row:
                 return row[0]
             return None
+        
+    async def user_create(
+        self
+    ) -> None:
+        ... 

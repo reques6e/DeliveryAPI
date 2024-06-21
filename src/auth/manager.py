@@ -1,8 +1,12 @@
 import jwt
 
+from auth.models import UserCreate
+from database import DataBase
 from config import Config
 
-class Manager():
+db = DataBase()
+
+class UserManager():
     def __init__(self) -> None:
         pass
 
@@ -30,3 +34,8 @@ class Manager():
                 )
         except jwt.InvalidTokenError as e:
             return False
+        
+    async def user_create(
+        data: UserCreate
+    ) -> bool:
+        await db.user_create(data) 

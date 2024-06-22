@@ -3,12 +3,13 @@ from typing import Optional
 
 
 class UserCreate(BaseModel):
-    username: int
+    id: int
+    username: str
     age: int
-    password: int
+    password: str
     admin: Optional[int] = 0
     block: Optional[int] = 0
-    group: str
+    user_group: str 
     city: int
     address: str
     phone: int

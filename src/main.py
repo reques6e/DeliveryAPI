@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from config import Config
 from info.router import router as router_info
-
+from auth.router import router as router_auth
 
 api = FastAPI(
     title='DeliveryAPI By Reques6e',
@@ -11,8 +11,8 @@ api = FastAPI(
     redoc_url=None,
 )
 
+api.include_router(router_auth)
 api.include_router(router_info)
-
 
 if __name__ == "__main__":
     uvicorn.run(

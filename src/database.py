@@ -1,6 +1,7 @@
 import aiosqlite
 
-from auth.models import UserCreate
+from auth.models import UserStructure
+from typing import Optional, Union
 
 
 class DataBase:
@@ -30,7 +31,8 @@ class DataBase:
                     address TEXT,
                     phone INTEGER,
                     reg_date INTEGER,
-                    passport TEXT
+                    passport TEXT,
+                    token TEXT
                 )
             ''')
 
@@ -46,11 +48,14 @@ class DataBase:
                 return row[0]
             return None
         
-    async def user_create(self, data: UserCreate) -> None:
+    async def user_create(
+        self, 
+        data: UserStructure
+    ) -> bool:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute('''
-                INSERT INTO users (id, username, age, password, admin, block, user_group, city, address, phone, reg_date, passport)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO users (id, username, age, password, admin, block, user_group, city, address, phone, reg_date, passport, token)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 data.id,
                 data.username,
@@ -63,9 +68,49 @@ class DataBase:
                 data.address,
                 data.phone,
                 data.reg_date,
-                data.passport
+                data.passport,
+                data.token
             ))
-            rs = await db.commit()
+            await db.commit()
 
-            return rs
+            return True
         
+    async def user_info(
+        self,
+        id: int
+    ) -> Union[UserStructure, bool]:
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT * FROM users WHERE id = ?', (id,))
+            row = await cursor.fetchone()
+
+        if row:
+            return UserStructure(
+                id=row[0],
+                username=row[1],
+                age=row[2],
+                password=row[3],
+                admin=row[4],
+                block=row[5],
+                user_group=row[6],
+                city=row[7],
+                address=row[8],
+                phone=row[9],
+                reg_date=row[10],
+                passport=row[11],
+                token=row[12]
+            )
+        return None
+    
+    async def user_delete(
+        self,
+        id: int,
+    ) -> bool:
+         async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                    DELETE FROM users WHERE id = ?
+                ''', (id,)
+            )
+
+            await db.commit()
+
+            return True

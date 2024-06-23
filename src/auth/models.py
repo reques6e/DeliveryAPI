@@ -3,6 +3,14 @@ from typing import Optional
 
 
 class UserCreate(BaseModel):
+    username: str
+    age: int
+    phone: int
+    city: int
+    address: str
+    password: str
+
+class UserStructure(BaseModel):
     id: int
     username: str
     age: int
@@ -15,3 +23,8 @@ class UserCreate(BaseModel):
     phone: int
     reg_date: int
     passport: Optional[str] = None
+    token: str
+
+class UserAuth(BaseModel):
+    phone: int
+    password: str

@@ -1,10 +1,14 @@
 import jwt
 
-from auth.models import UserCreate
+from auth.models import UserStructure
+
+from typing import Optional, Union
+
 from database import DataBase
 from config import Config
 
 db = DataBase()
+
 
 class UserManager():
     def __init__(self) -> None:
@@ -36,6 +40,34 @@ class UserManager():
             return False
         
     async def user_create(
-        data: UserCreate
+        self,
+        data: UserStructure
     ) -> bool:
-        await db.user_create(data) 
+        if await db.user_create(data) == True:
+            # TODO update 
+            # Логирование
+            return True
+        else:
+            return False
+        
+    async def user_info(
+        self,
+        id: int
+    ) -> Union[UserStructure, None]:
+
+        rs = await db.user_info(id)
+        if rs:
+            return rs
+        else:
+            return None
+        
+    async def user_delete(
+        self,
+        id: int
+    ) -> bool:
+
+        rs = await db.user_delete(id)
+        if rs:
+            return rs
+        else:
+            return False

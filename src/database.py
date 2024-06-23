@@ -1,7 +1,9 @@
 import aiosqlite
 
-from auth.models import UserStructure
 from typing import Optional, Union
+
+from auth.models import UserStructure
+from cities.models import CityStructure
 
 
 class DataBase:
@@ -15,6 +17,14 @@ class DataBase:
                     name TEXT,
                     description TEXT,
                     logo TEXT
+                )
+            ''')
+
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS cities (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    description TEXT
                 )
             ''')
 
@@ -105,7 +115,7 @@ class DataBase:
         self,
         id: int,
     ) -> bool:
-         async with aiosqlite.connect(self.db_path) as db:
+        async with aiosqlite.connect(self.db_path) as db:
             await db.execute('''
                     DELETE FROM users WHERE id = ?
                 ''', (id,)
@@ -114,3 +124,66 @@ class DataBase:
             await db.commit()
 
             return True
+         
+    async def cities_get(
+        self
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id, name, description FROM cities')
+            rows = await cursor.fetchall()
+
+            if rows:
+                cities = [{'id': row[0], 'name': row[1], 'description': row[2]} for row in rows]
+                
+                return cities
+            
+            return None
+    
+    async def city_get(
+        self,
+        id: int
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT * FROM cities WHERE id = ?', (id,))
+            
+            if cursor:
+                return await cursor.fetchone()
+            
+            return None
+        
+    async def city_create(
+        self,
+        data: CityStructure
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                INSERT INTO cities (id, username, description)
+                VALUES (?, ?, ?)
+            ''', (
+                data.id,
+                data.name,
+                data.description
+            ))
+            await db.commit()
+
+            return True
+        
+    async def city_delete(
+        self,
+        id: int
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                    DELETE FROM cities WHERE id = ?
+                ''', (id,)
+            )
+            await db.commit()
+
+            return True
+        
+if __name__ == '__main__':
+    import asyncio
+
+    db = DataBase()
+
+    print(asyncio.run(db.city_get(555)))

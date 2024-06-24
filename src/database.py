@@ -157,7 +157,7 @@ class DataBase:
     ):
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute('''
-                INSERT INTO cities (id, username, description)
+                INSERT INTO cities (id, name, description)
                 VALUES (?, ?, ?)
             ''', (
                 data.id,

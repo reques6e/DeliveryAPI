@@ -21,13 +21,20 @@ class JSONBuildResponse:
    
     """
 
-    def __init__(self, error: int = 0, message: str = 'Успех!', **kwargs) -> None:
+    def __init__(
+        self, 
+        error: int = 0, 
+        message: str = 'Успех!', 
+        **kwargs
+    ) -> None:
         self.error = error
         self.message = message
         self.data = kwargs
 
 
-    def json(self):
+    def json(
+        self
+    ):
         return {
             "error": self.error,
             "message": self.message,

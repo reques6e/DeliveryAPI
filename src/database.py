@@ -180,10 +180,3 @@ class DataBase:
             await db.commit()
 
             return True
-        
-if __name__ == '__main__':
-    import asyncio
-
-    db = DataBase()
-
-    print(asyncio.run(db.city_get(555)))

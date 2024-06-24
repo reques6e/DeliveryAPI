@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 
-@router.get('/info')
+@router.get('/')
 async def info(
     id: int
 ):
@@ -96,7 +96,7 @@ async def create(
         )
 
 @router.put('/edit')
-async def info(
+async def info_edit(
     id: int
 ):
     # TODO update

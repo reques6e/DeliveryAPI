@@ -62,7 +62,15 @@ async def city_create(
             ).json(),
             status_code=500
         )
-    
+
+@router.put('/edit')
+async def city_edit(
+    id: int
+):
+    # TODO update
+    ...
+
+
 @router.delete('/delete')
 async def city_create(
     id: int

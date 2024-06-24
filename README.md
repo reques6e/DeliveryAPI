@@ -1,7 +1,7 @@
 # DeliveryAPI
 
 <p align="center">
-    <img src='assets/logo.png' alt='Логотип' width='190px'>
+    <img src='assets/logo.png' alt='Логотип' width='20%'>
 </p>
 <p align="center">
     <a href="https://github.com/tiangolo/fastapi/" target="_blank">

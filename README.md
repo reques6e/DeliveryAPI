@@ -1,4 +1,8 @@
 # DeliveryAPI
+
+<p align="center">
+    <img src='assets/logo.png' alt='Логотип' width='190px'>
+</p>
 <p align="center">
     <a href="https://github.com/tiangolo/fastapi/" target="_blank">
         <img src="https://img.shields.io/badge/FastAPI-tiangolo-2334D058" alt="Библиотека">

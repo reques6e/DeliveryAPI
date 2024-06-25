@@ -17,7 +17,7 @@ router = APIRouter(
 
 
 @router.get('/')
-async def info(
+async def auth(
     id: int
 ):
     rs = await UserManager().user_info(id)
@@ -50,7 +50,7 @@ async def info(
         )        
 
 @router.post('/create')
-async def create(
+async def auth_create(
     data: UserCreate
 ):
     structure = UserStructure(
@@ -96,7 +96,7 @@ async def create(
         )
 
 @router.put('/edit')
-async def info_edit(
+async def auth_edit(
     id: int
 ):
     # TODO update
@@ -104,7 +104,7 @@ async def info_edit(
 
 
 @router.delete('/delete')
-async def info(
+async def auth_delete(
     id: int
 ):
     if await UserManager().user_info(id):

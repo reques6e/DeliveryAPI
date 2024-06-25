@@ -1,5 +1,5 @@
 <p align="center">
-    <img src='assets/helmet.png' alt='Логотип' width='30%'>
+    <img src='assets/helmet.png' alt='Логотип' width='15%'>
 </p>
 <p align="center">
     <a href="https://github.com/tiangolo/fastapi/" target="_blank">

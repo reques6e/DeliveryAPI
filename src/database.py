@@ -4,6 +4,7 @@ from typing import Optional, Union
 
 from auth.models import UserStructure
 from cities.models import CityStructure
+from point.models import PointStructure
 
 
 class DataBase:
@@ -25,6 +26,15 @@ class DataBase:
                     id INTEGER PRIMARY KEY,
                     name TEXT,
                     description TEXT
+                )
+            ''')
+
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS point (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    description TEXT,
+                    city_id INTEGER
                 )
             ''')
 
@@ -133,10 +143,8 @@ class DataBase:
             rows = await cursor.fetchall()
 
             if rows:
-                cities = [{'id': row[0], 'name': row[1], 'description': row[2]} for row in rows]
-                
-                return cities
-            
+                return [{'id': row[0], 'name': row[1], 'description': row[2]} for row in rows]
+                            
             return None
     
     async def city_get(
@@ -175,6 +183,61 @@ class DataBase:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute('''
                     DELETE FROM cities WHERE id = ?
+                ''', (id,)
+            )
+            await db.commit()
+
+            return True
+
+    async def point_get(
+        self,
+        id: int
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT * FROM point WHERE id = ?', (id,))
+            
+            if cursor:
+                return await cursor.fetchone()
+            
+            return None
+         
+    async def points_get(
+        self
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id, name, description, city_id FROM point')
+            rows = await cursor.fetchall()
+
+            if rows:
+                return [{'id': row[0], 'name': row[1], 'description': row[2], 'city_id': row[3]} for row in rows]
+                            
+            return None
+        
+    async def point_create(
+        self,
+        data: PointStructure
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                INSERT INTO point (id, name, description, city_id)
+                VALUES (?, ?, ?, ?)
+            ''', (
+                data.id,
+                data.name,
+                data.description,
+                data.city_id
+            ))
+            await db.commit()
+
+            return True
+    
+    async def point_delete(
+        self,
+        id: int
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                    DELETE FROM point WHERE id = ?
                 ''', (id,)
             )
             await db.commit()

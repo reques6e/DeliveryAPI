@@ -243,3 +243,50 @@ class DataBase:
             await db.commit()
 
             return True
+        
+    async def find_point_by_city(
+        self,
+        city_id: int
+    ) -> Union[bool, None]:
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id FROM point WHERE city_id = ?', (city_id,))
+            
+            rows = await cursor.fetchall()
+            
+            if rows:
+                return rows
+            
+            return None
+
+    async def get_users_by_city(
+        self,
+        city_id: int
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id FROM users WHERE city = ?', (city_id,))
+            
+            rows = await cursor.fetchall()
+            
+            if rows:
+                return rows
+            
+            return None
+
+    async def update_city_in_users(
+        self,
+        old_city_id: int,
+        new_city_id: int
+    ) -> Union[bool, None]:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('UPDATE users SET city = ? WHERE city = ?', (new_city_id, old_city_id))
+            
+            await db.commit()
+            
+            return True   
+        
+if __name__ == '__main__':
+    db = DataBase()
+
+    import asyncio 
+
+    print(asyncio.run(db.get_users_by_city(2)))

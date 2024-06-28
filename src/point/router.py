@@ -6,7 +6,7 @@ from fastapi import APIRouter
 from database import DataBase
 from utils import JSONBuildResponse
 
-from point.models import PointStructure, PointCreate
+from point.models import PointStructure, PointCreate, PointUpdate
 
 router = APIRouter(
     prefix='/point',
@@ -74,10 +74,46 @@ async def point_create(
 
 @router.put('/edit')
 async def point_edit(
-    id: int
+    data: PointUpdate
 ):
-    # TODO update
-    ...
+    if await db.point_get(data.id):
+        if data.city_id:
+            if await db.city_get(data.city_id):
+                pass
+            else:
+                return JSONResponse(
+                    content=JSONBuildResponse(
+                        error=0,
+                        message=f'Город с ID {data.city_id} не найден.'
+                    ).json(),
+                    status_code=404
+                )
+
+        if await db.point_update(data):
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=0,
+                    message=f'Пункт выдачи с ID {data.id} был обновлён.'
+                ).json(),
+                status_code=200
+            )
+        else:
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message=f'Произошла ошибка при обновлении пункта выдачи с ID {data.id}'
+                ).json(),
+                status_code=500
+            )
+    else:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=1,
+                message=f'Пункт выдачи с ID {data.id} не найден.'
+            ).json(),
+            status_code=404
+        )
+
 
 @router.delete('/delete')
 async def point_delete(

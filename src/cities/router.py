@@ -6,7 +6,8 @@ from fastapi import APIRouter
 from database import DataBase
 from utils import JSONBuildResponse
 
-from cities.models import CityStructure, CityCreate
+from cities.models import CityStructure, CityCreate, CityUpdate
+
 
 router = APIRouter(
     prefix='/cities',
@@ -34,7 +35,7 @@ async def cities():
                 message='В данный момент нет ни одного города.',
                 cities=None
             ).json(),
-            status_code=200
+            status_code=404
         )       
 
 @router.post('/create')
@@ -65,25 +66,69 @@ async def city_create(
 
 @router.put('/edit')
 async def city_edit(
-    id: int
+    data: CityUpdate
 ):
-    # TODO update
-    ...
-
-
-@router.delete('/delete')
-async def city_create(
-    id: int
-):
-    if await db.city_get(id):
-        if await db.city_delete(id):
+    if await db.city_get(data.id):
+        if await db.city_update(data):
             return JSONResponse(
                 content=JSONBuildResponse(
                     error=0,
-                    message=f'Город успешно удалён.'
+                    message=f'Город с ID {data.id} был обновлён.'
                 ).json(),
                 status_code=200
             )
+        else:
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message=f'Произошла ошибка при обновлении города с ID {data.id}'
+                ).json(),
+                status_code=500
+            )
+    else:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=1,
+                message=f'Город с ID {data.id} не найден.'
+            ).json(),
+            status_code=404
+        )
+
+
+@router.delete('/delete')
+async def city_delete(
+    id: int
+):
+    """
+    ```py 
+    Обратите внимание
+
+    При удалении города так же удаляются и другие привязанные к нему детали: Пункты выдачи, заказы и т.д
+    ```
+
+    """
+
+    if await db.city_get(id):
+        points = await db.find_point_by_city(id)
+        if points:
+            for point in points:
+                await db.point_delete(point[0])
+        
+        users = await db.get_users_by_city(id)
+        if users:
+            await db.update_city_in_users(
+                old_city_id=id,
+                new_city_id=0
+            )
+
+        if await db.city_delete(id):
+            return JSONResponse(
+                    content=JSONBuildResponse(
+                        error=0,
+                        message=f'Город успешно удалён.'
+                    ).json(),
+                    status_code=200
+                )
         else:
             return JSONResponse(
                 content=JSONBuildResponse(

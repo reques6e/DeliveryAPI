@@ -69,7 +69,7 @@ async def auth_create(
         passport=None,
         token=UserManager.jwt_generate({'sjskasdklasd': f'{uuid.uuid4()}', 'password': f'{data.password}', 'gdfghdfasd': f'{uuid.uuid4()}'})
     )
-    if await UserManager().user_create(structure):
+    if await db.user_create(structure):
         return JSONResponse(
             content=JSONBuildResponse(
                 error=0,
@@ -144,8 +144,8 @@ async def auth_edit(
 async def auth_delete(
     id: int
 ):
-    if await UserManager().user_info(id):
-        if await UserManager().user_delete(id):
+    if await db.user_info(id):
+        if await db.user_delete(id):
             return JSONResponse(
                 content=JSONBuildResponse(
                     error=0,

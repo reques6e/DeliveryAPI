@@ -38,36 +38,3 @@ class UserManager():
                 )
         except jwt.InvalidTokenError as e:
             return False
-        
-    async def user_create(
-        self,
-        data: UserStructure
-    ) -> bool:
-        if await db.user_create(data) == True:
-            # TODO update 
-            # Логирование
-            return True
-        else:
-            return False
-        
-    async def user_info(
-        self,
-        id: int
-    ) -> Union[UserStructure, None]:
-
-        rs = await db.user_info(id)
-        if rs:
-            return rs
-        else:
-            return None
-        
-    async def user_delete(
-        self,
-        id: int
-    ) -> bool:
-
-        rs = await db.user_delete(id)
-        if rs:
-            return rs
-        else:
-            return False

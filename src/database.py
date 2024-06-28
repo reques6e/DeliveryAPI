@@ -2,9 +2,9 @@ import aiosqlite
 
 from typing import Optional, Union
 
-from auth.models import UserStructure
-from cities.models import CityStructure
-from point.models import PointStructure
+from auth.models import UserStructure, UserUpdate
+from cities.models import CityStructure, CityUpdate
+from point.models import PointStructure, PointUpdate
 
 
 class DataBase:
@@ -284,9 +284,56 @@ class DataBase:
             
             return True   
         
-if __name__ == '__main__':
-    db = DataBase()
+    async def point_update(
+        self, 
+        data: PointUpdate
+    ) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            update_data = data.dict(exclude_unset=True)
+            id = data.id
+            set_clause = ", ".join([f"{key} = ?" for key in update_data.keys()])
 
-    import asyncio 
+            values = list(update_data.values())
+            values.append(id)
 
-    print(asyncio.run(db.get_users_by_city(2)))
+            await db.execute(
+                f"UPDATE point SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+
+            return True
+        
+    async def city_update(
+        self, 
+        data: CityUpdate
+    ) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            update_data = data.dict(exclude_unset=True)
+            id = data.id
+            set_clause = ", ".join([f"{key} = ?" for key in update_data.keys()])
+
+            values = list(update_data.values())
+            values.append(id)
+
+            await db.execute(
+                f"UPDATE cities SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+
+            return True
+        
+    async def auth_update(
+        self, 
+        data: UserUpdate
+    ) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            update_data = data.dict(exclude_unset=True)
+            id = data.id
+            set_clause = ", ".join([f"{key} = ?" for key in update_data.keys()])
+
+            values = list(update_data.values())
+            values.append(id)
+
+            await db.execute(
+                f"UPDATE users SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+
+            return True

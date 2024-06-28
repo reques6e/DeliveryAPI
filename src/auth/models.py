@@ -28,3 +28,16 @@ class UserStructure(BaseModel):
 class UserAuth(BaseModel):
     phone: int
     password: str
+
+class UserUpdate(BaseModel):
+    id: int
+    username: Optional[str] = None
+    age: Optional[int] = None
+    password: Optional[str] = None
+    admin: Optional[int] = 0
+    block: Optional[int] = 0
+    user_group: Optional[str]  = None
+    city: Optional[int] = None
+    address: Optional[str] = None
+    phone: Optional[int] = None
+    passport: Optional[str] = None

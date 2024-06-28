@@ -6,8 +6,9 @@ from fastapi.responses import JSONResponse
 from fastapi import APIRouter
 
 from auth.manager import UserManager
-from auth.models import UserStructure, UserCreate
+from auth.models import UserStructure, UserCreate, UserUpdate
 
+from database import DataBase
 from utils import JSONBuildResponse
 
 router = APIRouter(
@@ -15,12 +16,13 @@ router = APIRouter(
     tags=['Account']
 )
 
+db = DataBase()
 
 @router.get('/')
 async def auth(
     id: int
 ):
-    rs = await UserManager().user_info(id)
+    rs = await db.user_info(id)
     if rs:
         return JSONResponse(
             content=JSONBuildResponse(
@@ -97,10 +99,45 @@ async def auth_create(
 
 @router.put('/edit')
 async def auth_edit(
-    id: int
+    data: UserUpdate
 ):
-    # TODO update
-    ...
+    if await db.user_info(data.id):
+        if data.city:
+            if await db.city_get(data.city):
+                pass
+            else:
+                return JSONResponse(
+                    content=JSONBuildResponse(
+                        error=0,
+                        message=f'Город с ID {data.city} не найден.'
+                    ).json(),
+                    status_code=404
+                )
+        
+        if await db.auth_update(data):
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=0,
+                    message=f'Пользователь с id {data.id} был обновлён.'
+                ).json(),
+                status_code=200
+            )
+        else:
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message=f'Произошла ошибка при обновлении пользователяы с ID {data.id}'
+                ).json(),
+                status_code=500
+            )
+    else:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=1,
+                message=f'Пользователь с id {data.id} не найден.'
+            ).json(),
+            status_code=500
+        )
 
 
 @router.delete('/delete')

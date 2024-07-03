@@ -2,11 +2,13 @@ import uvicorn
 
 from fastapi import FastAPI
 from config import Config
+from database import DataBase
 
 from info.router import router as router_info
 from auth.router import router as router_auth
-from cities.router import router as router_cities
-from point.router import router as router_point
+from city.router import router as router_cities
+from point.router import router as router_points
+from order.router import router as router_orders
 
 api = FastAPI(
     title='DeliveryAPI By Reques6e',
@@ -15,10 +17,15 @@ api = FastAPI(
     description='DeliveryAPI - https://github.com/reques6e/DeliveryAPI'
 )
 
+db = DataBase()
+
 api.include_router(router_auth)
 api.include_router(router_cities)
-api.include_router(router_point)
+api.include_router(router_points)
+api.include_router(router_orders)
 api.include_router(router_info)
+
+
 
 if __name__ == "__main__":
     uvicorn.run(

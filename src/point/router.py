@@ -16,7 +16,31 @@ router = APIRouter(
 db = DataBase()
 
 @router.get('/')
-async def point_get():
+async def point_get(
+    id: int
+):
+    point = await db.point_get(id)
+    if point:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=0,
+                message=f'Пункт выдачи с id {id}',
+                point=point
+            ).json(),
+            status_code=200
+        )
+    else:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=1,
+                message=f'Пункт выдачи с id {id} не найден.',
+                order=None
+            ).json(),
+            status_code=404
+        ) 
+    
+@router.get('/all')
+async def points_get():
     points = await db.points_get()
     if points:
         return JSONResponse(
@@ -52,7 +76,8 @@ async def point_create(
             return JSONResponse(
                 content=JSONBuildResponse(
                     error=0,
-                    message=f'Пункт выдачи {data.name} создан успешно'
+                    message=f'Пункт выдачи {data.name} создан успешно',
+                    point_id=structure.id
                 ).json(),
                 status_code=200
             )
@@ -119,7 +144,21 @@ async def point_edit(
 async def point_delete(
     id: int
 ):
+    """
+    ```py 
+    Обратите внимание
+
+    При удалении пункта выдачи так же удаляются и другие привязанные к нему детали: Заказы
+    ```
+
+    """
+
     if await db.point_get(id):
+        orders = await db.get_orders_by_point(id)
+        if orders:
+            for order in orders:
+                await db.order_delete(order[0])
+
         if await db.point_delete(id):
             return JSONResponse(
                 content=JSONBuildResponse(

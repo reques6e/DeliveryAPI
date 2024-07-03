@@ -3,13 +3,14 @@ import aiosqlite
 from typing import Optional, Union
 
 from auth.models import UserStructure, UserUpdate
-from cities.models import CityStructure, CityUpdate
+from city.models import CityStructure, CityUpdate
 from point.models import PointStructure, PointUpdate
+from order.models import OrderStructure, OrderUpdate
 
 
 class DataBase:
     def __init__(self) -> None:
-        self.db_path = 'db.db'
+        self.db_path = 'src/database/db.db'
 
     async def table_create(self):
         async with aiosqlite.connect(self.db_path) as db:
@@ -53,6 +54,18 @@ class DataBase:
                     reg_date INTEGER,
                     passport TEXT,
                     token TEXT
+                )
+            ''')
+
+            await db.execute('''
+                CREATE TABLE IF NOT EXISTS orders (
+                    id INTEGER PRIMARY KEY,
+                    city_id INTEGER,
+                    point_id INTEGER,
+                    description TEXT,
+                    img TEXT,
+                    date INTEGER,
+                    active INTEGER
                 )
             ''')
 
@@ -152,10 +165,11 @@ class DataBase:
         id: int
     ): 
         async with aiosqlite.connect(self.db_path) as db:
-            cursor = await db.execute('SELECT * FROM cities WHERE id = ?', (id,))
-            
-            if cursor:
-                return await cursor.fetchone()
+            cursor = await db.execute('SELECT id, name, description FROM cities WHERE id = ?', (id,))
+            row = await cursor.fetchone()
+
+            if row:
+                return [{'id': row[0], 'name': row[1], 'description': row[2]}]
             
             return None
         
@@ -196,8 +210,9 @@ class DataBase:
         async with aiosqlite.connect(self.db_path) as db:
             cursor = await db.execute('SELECT * FROM point WHERE id = ?', (id,))
             
-            if cursor:
-                return await cursor.fetchone()
+            row = await cursor.fetchone()
+            if row:
+                return [{'id': row[0], 'name': row[1], 'description': row[2], 'city_id': row[3]}]
             
             return None
          
@@ -337,3 +352,109 @@ class DataBase:
             await db.commit()
 
             return True
+
+    async def order_get(
+        self,
+        id: int
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT * FROM orders WHERE id = ?', (id,))
+            
+            row = await cursor.fetchone()
+            if row:
+                return [{'id': row[0], 'city_id': row[1], 'point_id': row[2], 'description': row[3], 'img': row[4], 'date': row[5], 'active': row[6]}]
+            
+            return None
+
+    async def orders_get(
+        self
+    ): 
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id, city_id, point_id, description, img, date, active FROM orders')
+            rows = await cursor.fetchall()
+
+            if rows:
+                return [{'id': row[0], 'city_id': row[1], 'point_id': row[2], 'description': row[3], 'img': row[4], 'date': row[5], 'active': row[6]} for row in rows]
+                            
+            return None
+                     
+    async def order_create(
+        self,
+        data: OrderStructure
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                INSERT INTO orders (id, city_id, point_id, description, img, date, active)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                data.id,
+                data.city_id,
+                data.point_id,
+                data.description,
+                data.img,
+                data.date,
+                data.active
+            ))
+            await db.commit()
+
+            return True
+
+    async def order_update(
+        self, 
+        data: OrderUpdate
+    ) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            update_data = data.dict(exclude_unset=True)
+            id = data.id
+            set_clause = ", ".join([f"{key} = ?" for key in update_data.keys()])
+
+            values = list(update_data.values())
+            values.append(id)
+
+            await db.execute(
+                f"UPDATE orders SET {set_clause} WHERE id = ?", values)
+            await db.commit()
+
+            return True
+                
+    async def order_delete(
+        self,
+        id: int,
+    ) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute('''
+                    DELETE FROM orders WHERE id = ?
+                ''', (id,)
+            )
+
+            await db.commit()
+
+            return True
+        
+    async def get_orders_by_city(
+        self,
+        city_id: int
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id FROM orders WHERE city_id = ?', (city_id,))
+            
+            rows = await cursor.fetchall()
+            
+            if rows:
+                return rows
+            
+            return None
+        
+    async def get_orders_by_point(
+        self,
+        point_id: int
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id FROM orders WHERE point_id = ?', (point_id,))
+            
+            rows = await cursor.fetchall()
+            
+            if rows:
+                return rows
+            
+            return None

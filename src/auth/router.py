@@ -19,7 +19,7 @@ router = APIRouter(
 db = DataBase()
 
 @router.get('/')
-async def auth(
+async def auth_get(
     id: int
 ):
     rs = await db.user_info(id)

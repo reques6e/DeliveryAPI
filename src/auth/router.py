@@ -51,6 +51,29 @@ async def auth_get(
             status_code=404
         )        
 
+@router.get('/all')
+async def auths_get():
+    auth = await db.auth_get()
+    print(auth)
+    if auth:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=0,
+                message='Все аккаунты.',
+                auth=auth
+            ).json(),
+            status_code=200
+        )
+    else:
+        return JSONResponse(
+            content=JSONBuildResponse(
+                error=0,
+                message='В данный момент нет ни одного аккаунта.',
+                cities=None
+            ).json(),
+            status_code=404
+        )  
+    
 @router.post('/create')
 async def auth_create(
     data: UserCreate

@@ -334,6 +334,19 @@ class DataBase:
             await db.commit()
 
             return True
+
+    async def auth_get(
+        self
+    ):
+        async with aiosqlite.connect(self.db_path) as db:
+            cursor = await db.execute('SELECT id, username, age, password, admin, block, user_group, city, address, phone, reg_date, passport, token FROM users')
+            rows = await cursor.fetchall()
+
+            if rows:
+                return [{'id': row[0], 'username': row[1], 'age': row[2], 'password': row[3], 'admin': row[4], 'block': row[5], 'user_group': row[6], 'city': row[7], 'address': row[8], 'phone': row[9], 'reg_date': row[10], 'passport': row[11], 'token': row[12]} for row in rows]
+                                
+            return None
+
         
     async def auth_update(
         self, 

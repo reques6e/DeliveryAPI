@@ -54,7 +54,7 @@ async def auth_get(
 @router.get('/all')
 async def auths_get():
     auth = await db.auth_get()
-    print(auth)
+
     if auth:
         return JSONResponse(
             content=JSONBuildResponse(
@@ -78,8 +78,10 @@ async def auths_get():
 async def auth_create(
     data: UserCreate
 ):
+    id = random.randint(10000000, 99999999)
+
     structure = UserStructure(
-        id=random.randint(10000000, 99999999),
+        id=id,
         username=data.username,
         age=data.age,
         password=data.password,
@@ -90,7 +92,7 @@ async def auth_create(
         phone=data.phone,
         reg_date=int(time.time()),
         passport=None,
-        token=UserManager.jwt_generate({'sjskasdklasd': f'{uuid.uuid4()}', 'password': f'{data.password}', 'gdfghdfasd': f'{uuid.uuid4()}'})
+        token=UserManager.jwt_generate({'request': f'{uuid.uuid4()}', 'password': f'{data.password}', 'id': f'{id}'})
     )
     if await db.user_create(structure):
         return JSONResponse(

@@ -31,7 +31,6 @@ class JSONBuildResponse:
         self.message = message
         self.data = kwargs
 
-
     def json(
         self
     ):

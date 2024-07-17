@@ -2,10 +2,10 @@ import aiosqlite
 
 from typing import Optional, Union
 
-from auth.models import UserStructure, UserUpdate
-from city.models import CityStructure, CityUpdate
-from point.models import PointStructure, PointUpdate
-from order.models import OrderStructure, OrderUpdate
+from pages.auth.models import UserStructure, UserUpdate
+from pages.city.models import CityStructure, CityUpdate
+from pages.point.models import PointStructure, PointUpdate
+from pages.order.models import OrderStructure, OrderUpdate
 
 
 class DataBase:

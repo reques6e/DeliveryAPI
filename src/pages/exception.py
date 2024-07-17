@@ -13,6 +13,33 @@ class FastAPIExceptionHandlers:
             return JSONResponse(
                 content=JSONBuildResponse(
                     error=1,
-                    message='Страница не найдена'
+                    message="Страница не найдена"
+                ).json()
+            )
+
+        @self.app.exception_handler(403)
+        async def custom_404_handler(request: Request, exc):
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message="У вас нет доступа к этой странице"
+                ).json()
+            )
+        
+        @self.app.exception_handler(401)
+        async def custom_404_handler(request: Request, exc):
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message="Требуется авторизация"
+                ).json()
+            )
+
+        @self.app.exception_handler(500)
+        async def custom_404_handler(request: Request, exc):
+            return JSONResponse(
+                content=JSONBuildResponse(
+                    error=1,
+                    message="На сервере произошла ошибка"
                 ).json()
             )
